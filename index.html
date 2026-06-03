@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskBoard - 项目看板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 id="app-title" class="clickable-title">TaskBoard</h1>
+                <button class="close-sidebar-btn" id="close-sidebar-btn">&times;</button>
+            </div>
+            <div class="view-switcher">
+                <div class="dropdown-btn" id="view-dropdown-btn">
+                    <span id="view-current-label" data-i18n="boardView">看板视图</span>
+                    <span class="dropdown-arrow">▼</span>
+                </div>
+                <div class="dropdown-menu hidden" id="view-dropdown-menu">
+                    <div class="dropdown-item" data-view="board" data-i18n="boardView">看板视图</div>
+                    <div class="dropdown-item" data-view="day" data-i18n="dayView">日视图</div>
+                    <div class="dropdown-item" data-view="week" data-i18n="weekView">周视图</div>
+                    <div class="dropdown-item" data-view="month" data-i18n="monthView">月视图</div>
+                    <div class="dropdown-item" data-view="year" data-i18n="yearView">年视图</div>
+                </div>
+            </div>
+            <h3 class="board-list-title" id="board-list-title">看板列表</h3>
+            <div class="board-list" id="board-list"></div>
+            <div class="sidebar-buttons">
+                <button class="add-board-btn-sidebar" id="add-board-btn-sidebar" data-i18n="newTask">+任务</button>
+            <button class="add-folder-btn-sidebar" id="add-folder-btn-sidebar" data-i18n="addFolder">+📂文件夹</button>
+            </div>
+            <button class="more-btn" id="more-btn" data-i18n="moreFeatures">⚙️ 更多功能</button>
+            <div class="more-menu hidden" id="more-menu">
+                <button class="menu-item" id="menu-tutorial" data-i18n="helpTutorial">📖 帮助教程</button>
+                <button class="menu-item" id="menu-export" data-i18n="exportData">💾 导出数据</button>
+                <button class="menu-item" id="menu-import" data-i18n="importData">📥 导入数据</button>
+                <button class="menu-item" id="menu-merge" data-i18n="mergeData">🔗 合并数据</button>
+                <button class="menu-item" id="menu-about" data-i18n="aboutUs">ℹ️ 关于我们</button>
+                <button class="menu-item" id="menu-language" data-i18n="language">🌐 语言</button>
+                <button class="menu-item" id="menu-clear" style="color: #e74c3c;" data-i18n="clearData">🗑️ 清空数据</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="board-view" id="board-view">
+                <div class="current-board-header" id="current-board-header">
+                    <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
+                    <h2 id="current-board-title">我的看板</h2>
+                    <div class="ad-carousel" id="ad-carousel">
+                        <div class="ad-track" id="ad-track">
+                            <!-- 广告内容会动态渲染 -->
+                        </div>
+                    </div>
+                    <div class="badges-container" id="badges-container"></div>
+                </div>
+                <div class="columns-container" id="columns-container">
+                    <!-- 动态渲染的板块 -->
+                </div>
+            </div>
+            
+            <div id="single-column-view" class="single-column-view hidden">
+                <div class="single-column-header">
+                    <button id="back-from-column-btn" class="back-btn">← 返回</button>
+                    <h2 id="single-column-title"></h2>
+                </div>
+                <div class="single-column-content" id="single-column-content"></div>
+            </div>
+
+            <div class="week-view hidden" id="week-view">
+                <div class="view-header">
+                    <h2 id="week-title" data-i18n="weekView">周视图</h2>
+                    <div class="view-controls">
+                        <div class="date-controls">
+                            <button class="date-nav-btn" id="week-prev-year">&lt;&lt;</button>
+                            <button class="date-nav-btn" id="week-prev-week">&lt;</button>
+                            <span class="date-display" id="week-date-display">2026年第21周</span>
+                            <button class="date-nav-btn" id="week-next-week">&gt;</button>
+                            <button class="date-nav-btn" id="week-next-year">&gt;&gt;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="week-stats" id="week-stats"></div>
+            </div>
+
+            <div class="month-view hidden" id="month-view">
+                <div class="view-header">
+                    <h2 id="month-title" data-i18n="monthView">月视图</h2>
+                    <div class="view-controls">
+                        <div class="date-controls">
+                            <button class="date-nav-btn" id="month-prev-year">&lt;&lt;</button>
+                            <button class="date-nav-btn" id="month-prev-month">&lt;</button>
+                            <span class="date-display" id="month-date-display">2026年5月</span>
+                            <button class="date-nav-btn" id="month-next-month">&gt;</button>
+                            <button class="date-nav-btn" id="month-next-year">&gt;&gt;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="month-stats" id="month-stats"></div>
+            </div>
+
+            <div class="year-view hidden" id="year-view">
+                <div class="view-header">
+                    <h2 id="year-title" data-i18n="yearView">年视图</h2>
+                    <div class="view-controls">
+                        <div class="date-controls">
+                            <button class="date-nav-btn" id="year-prev">&lt;</button>
+                            <span class="date-display" id="year-date-display">2026年</span>
+                            <button class="date-nav-btn" id="year-next">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="year-stats" id="year-stats"></div>
+            </div>
+
+            <div class="day-view hidden" id="day-view">
+                <div class="view-header">
+                    <h2 id="day-title" data-i18n="dayView">日视图</h2>
+                    <div class="view-controls">
+                        <div class="date-controls">
+                            <button class="date-nav-btn" id="day-prev-year">&lt;&lt;</button>
+                            <button class="date-nav-btn" id="day-prev-month">&lt;</button>
+                            <span class="date-display" id="day-date-display">2026年5月</span>
+                            <button class="date-nav-btn" id="day-next-month">&gt;</button>
+                            <button class="date-nav-btn" id="day-next-year">&gt;&gt;</button>
+                        </div>
+                        <div class="day-view-filter">
+                            <div class="dropdown-btn" id="column-dropdown-btn">
+                                <span id="column-current-label" data-i18n="done">已完成</span>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="day-stats" id="day-stats"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 卡片编辑模态框 -->
+    <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="card-modal-title" data-i18n="editCard">编辑卡片</h2>
+            <textarea id="card-content-input" data-i18n-placeholder="taskContent" placeholder="卡片内容"></textarea>
+            <div class="color-picker-section">
+                <label data-i18n="selectColor">选择颜色：</label>
+                <div class="color-options" id="color-options"></div>
+                <div class="custom-color-input">
+                    <input type="color" id="custom-color-picker" value="#ffffff">
+                    <button id="add-custom-color-btn" class="btn btn-secondary" data-i18n="addColor">添加颜色</button>
+                </div>
+            </div>
+            <div class="card-dates">
+                <p><strong data-i18n="createdDate">创建日期：</strong><span id="card-created-date">-</span></p>
+                <p><strong data-i18n="completedDate">完成日期：</strong><span id="card-completed-date">-</span></p>
+            </div>
+            <button id="save-card-btn" class="btn btn-primary" data-i18n="save">保存</button>
+            <button id="delete-card-btn" class="btn btn-danger" data-i18n="delete">删除</button>
+        </div>
+    </div>
+
+    <!-- 看板编辑模态框 -->
+    <div id="board-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="board-modal-title" data-i18n="newTask">新建任务</h2>
+            <input type="text" id="board-name-input" data-i18n-placeholder="taskName" placeholder="任务名称">
+            <button id="save-board-btn" class="btn btn-primary" data-i18n="save">保存</button>
+        </div>
+    </div>
+
+    <!-- 看板长按操作模态框 -->
+    <div id="long-press-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>看板操作</h2>
+            <button id="edit-board-name-btn" class="btn btn-primary">修改名称</button>
+            <div id="move-board-buttons">
+                <!-- 移动按钮会动态显示 -->
+            </div>
+            <button id="delete-board-btn" class="btn btn-danger">删除看板</button>
+        </div>
+    </div>
+    
+    <!-- 右边看板列表长按操作模态框 -->
+    <div id="right-board-long-press-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>看板操作</h2>
+            <div id="right-move-board-buttons">
+                <!-- 移动按钮会动态显示 -->
+            </div>
+            <button id="right-delete-board-btn" class="btn btn-danger">删除看板</button>
+        </div>
+    </div>
+
+    <!-- 入门教程模态框 -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content tutorial-content">
+            <span class="close" id="tutorial-close-btn">&times;</span>
+            <div class="tutorial-image-container">
+                <img id="tutorial-image" src="" alt="教程插图">
+            </div>
+            <h2 id="tutorial-title"></h2>
+            <p id="tutorial-text"></p>
+            <div class="tutorial-steps">
+                <span class="tutorial-step active"></span>
+                <span class="tutorial-step"></span>
+                <span class="tutorial-step"></span>
+                <span class="tutorial-step"></span>
+            </div>
+            <button id="tutorial-next-btn" class="btn btn-primary">下一步</button>
+        </div>
+    </div>
+
+    <!-- 主题设置模态框 -->
+    <div id="theme-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>主题设置</h2>
+            <div class="form-group">
+                <label>应用名称：</label>
+                <input type="text" id="app-name-input" placeholder="输入应用名称">
+            </div>
+            <div class="color-picker-section">
+                <label>选择主题颜色：</label>
+                <div class="color-options" id="theme-color-options"></div>
+                <div class="custom-color-input">
+                    <input type="color" id="custom-theme-color-picker" value="#9b59b6">
+                    <button id="add-custom-theme-color-btn" class="btn btn-secondary">添加颜色</button>
+                </div>
+            </div>
+            <button id="save-theme-btn" class="btn btn-primary">保存主题</button>
+        </div>
+    </div>
+
+    <!-- 关于我们模态框 -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content about-content">
+            <span class="close">&times;</span>
+            <button id="back-from-about-btn" class="back-btn">← 返回</button>
+            <h2>关于我们</h2>
+            
+            <div class="about-scroll-container">
+                <div class="about-section">
+                    <h3>📱 软件介绍</h3>
+                    <p>TaskBoard是一款简洁高效的任务管理工具，帮助您更好地组织工作和生活。</p>
+                    <p>通过直观的看板视图，您可以轻松地创建、移动和完成任务，提升工作效率。</p>
+                    <p>数据保存在本地，不上传到服务器，确保您的隐私和安全。</p>
+                </div>
+                
+                <div class="about-section">
+                    <h3>📞 联系方式</h3>
+                    <p><strong>邮箱：</strong>2584757409@qq.com</p>
+                    <p><strong>QQ：</strong>2584757409</p>
+                </div>
+                
+                <div class="about-section">
+                    <h3>🔗 友情链接</h3>
+                    <div class="friend-links" id="friend-links-container">
+                        <a href="https://pickfree.cn" target="_blank" class="friend-link">Pick Free - 汇总免费资源的导航网站</a>
+                        <a href="https://www.hippter.com/" target="_blank" class="friend-link">HiPPTER - PPT模板图表等设计素材免费下载</a>
+                        <a href="https://www.ted.com/" target="_blank" class="friend-link">TED - 全球思想平台，海量短演讲免费在线观看</a>
+                        <a href="https://www.bilibili.com/" target="_blank" class="friend-link">Bilibili - 视频分享平台，海量视频免费在线观看</a>
+                    </div>
+                </div>
+                
+                <div class="about-section">
+                    <h3>©️ 版权信息</h3>
+                    <p>© 2024 TaskBoard. All rights reserved.</p>
+                    <p>版本号：1.0.0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 语言选择模态框 -->
+    <div id="language-modal" class="modal">
+        <div class="modal-content language-content">
+            <span class="close">&times;</span>
+            <button id="back-from-language-btn" class="back-btn" data-i18n="back">← 返回</button>
+            <h2 data-i18n="language">🌐 语言</h2>
+            <p style="margin-bottom: 20px; color: #666;" data-i18n="chooseLanguage">请选择语言</p>
+            <div class="language-list" id="language-list">
+                <!-- 语言列表会动态渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 板块编辑模态框 -->
+    <div id="column-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="column-modal-title">编辑板块</h2>
+            <div class="form-group">
+                <label>板块名称：</label>
+                <input type="text" id="column-name-input" placeholder="输入板块名称">
+            </div>
+            <button id="save-column-btn" class="btn btn-primary">保存</button>
+            <button id="delete-column-btn" class="btn btn-danger">删除板块</button>
+        </div>
+    </div>
+
+    <!-- 文件夹编辑模态框 -->
+    <div id="folder-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="folder-modal-title">新建文件夹</h2>
+            <div class="form-group">
+                <label>文件夹名称：</label>
+                <input type="text" id="folder-name-input" placeholder="输入文件夹名称">
+            </div>
+            <button id="save-folder-btn" class="btn btn-primary">保存</button>
+            <button id="delete-folder-btn" class="btn btn-danger" style="display: none;">删除文件夹</button>
+        </div>
+    </div>
+
+    <!-- 文件夹长按模态框 -->
+    <div id="folder-long-press-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>文件夹操作</h2>
+            <button id="folder-rename-btn" class="btn btn-primary">重命名</button>
+            <button id="folder-delete-btn" class="btn btn-danger">删除文件夹</button>
+        </div>
+    </div>
+
+    <!-- 徽章获得弹窗 -->
+    <div id="badge-modal" class="modal">
+        <div class="modal-content badge-modal-content">
+            <span class="close">&times;</span>
+            <div class="badge-modal-icon" id="badge-modal-icon"></div>
+            <h2 id="badge-modal-title">🎉 恭喜获得徽章！</h2>
+            <p id="badge-modal-text">你太棒了！继续加油！</p>
+            <button id="badge-close-btn" class="btn btn-primary">太棒了！</button>
+        </div>
+    </div>
+    
+    <!-- 徽章介绍弹窗 -->
+    <div id="badge-info-modal" class="modal">
+        <div class="modal-content badge-info-modal-content">
+            <span class="close">&times;</span>
+            <h2 data-i18n="badgeInfoTitle">🏆 徽章介绍</h2>
+            <div id="badge-info-list" class="badge-info-list">
+                <!-- 动态渲染徽章信息 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入/导出模态框 -->
+    <div id="data-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="data-modal-title">数据操作</h2>
+            <div id="data-modal-content">
+                <!-- 内容将动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <!-- 下拉菜单 -->
+    <div class="dropdown-menu hidden" id="column-dropdown-menu">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
